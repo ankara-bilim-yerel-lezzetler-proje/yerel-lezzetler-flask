@@ -1,74 +1,91 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
-import os
+from datetime import datetime
 
 app = Flask(__name__)
-
-# Veritabanı Ayarları (Proje klasörüne 'yemekler.db' adında bir dosya kurar)
-basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'yemekler.db')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///yemekler.db'
 db = SQLAlchemy(app)
 
-# --- Veritabanı Modeli (Tablo Yapısı) ---
+
+# --- MODELLER ---
+
 class Yemek(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    baslik = db.Column(db.String(100), nullable=False)
+    ad = db.Column(db.String(200), nullable=False)
     aciklama = db.Column(db.Text, nullable=False)
-    resim = db.Column(db.String(255), nullable=True) # Resim linki veya yolu
+    foto = db.Column(db.String(500))
+    yorumlar = db.relationship("Yorum", backref="yemek", cascade="all, delete")
 
-# Veritabanını ilk çalışmada oluştur
-with app.app_context():
-    db.create_all()
 
-# --- Rotalar (Sayfa Yönlendirmeleri) ---
+class Yorum(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    yemek_id = db.Column(db.Integer, db.ForeignKey('yemek.id'))
+    yorum = db.Column(db.Text, nullable=False)
+    tarih = db.Column(db.DateTime, default=datetime.utcnow)
 
-# 1. Ana Sayfa (Listeleme)
+
+# --- ANA SAYFA (READ) ---
 @app.route('/')
 def index():
-    tum_yemekler = Yemek.query.all()
-    return render_template('index.html', yemekler=tum_yemekler)
+    yemekler = Yemek.query.all()
+    return render_template('index.html', yemekler=yemekler)
 
-# 2. Ekleme Sayfası
+
+# --- DETAY SAYFASI ---
+@app.route('/yemek/<int:id>')
+def yemek_detay(id):
+    yemek = Yemek.query.get(id)
+    return render_template('detay.html', yemek=yemek)
+
+
+# --- YORUM EKLE ---
+@app.route('/yorum-ekle/<int:id>', methods=['POST'])
+def yorum_ekle(id):
+    yorum_metni = request.form['yorum']
+    yorum = Yorum(yemek_id=id, yorum=yorum_metni)
+    db.session.add(yorum)
+    db.session.commit()
+    return redirect(f'/yemek/{id}')
+
+
+# --- CREATE ---
 @app.route('/ekle', methods=['GET', 'POST'])
 def ekle():
     if request.method == 'POST':
-        baslik = request.form['baslik']
-        aciklama = request.form['aciklama']
-        resim = request.form['resim']
-        
-        yeni_yemek = Yemek(baslik=baslik, aciklama=aciklama, resim=resim)
-        db.session.add(yeni_yemek)
+        yeni = Yemek(
+            ad=request.form['ad'],
+            aciklama=request.form['aciklama'],
+            foto=request.form['foto']
+        )
+        db.session.add(yeni)
         db.session.commit()
-        return redirect(url_for('index'))
+        return redirect('/')
     return render_template('ekle.html')
 
-# 3. Detay Sayfası
-@app.route('/detay/<int:id>')
-def detay(id):
-    yemek = Yemek.query.get_or_404(id)
-    return render_template('detay.html', yemek=yemek)
 
-# 4. Düzenleme Sayfası
+# --- UPDATE ---
 @app.route('/duzenle/<int:id>', methods=['GET', 'POST'])
 def duzenle(id):
-    yemek = Yemek.query.get_or_404(id)
+    yemek = Yemek.query.get(id)
     if request.method == 'POST':
-        yemek.baslik = request.form['baslik']
+        yemek.ad = request.form['ad']
         yemek.aciklama = request.form['aciklama']
-        yemek.resim = request.form['resim']
+        yemek.foto = request.form['foto']
         db.session.commit()
-        return redirect(url_for('index'))
+        return redirect('/')
     return render_template('duzenle.html', yemek=yemek)
 
-# 5. Silme İşlemi (Sayfası yok, butona basınca çalışır)
+
+# --- DELETE ---
 @app.route('/sil/<int:id>')
 def sil(id):
-    yemek = Yemek.query.get_or_404(id)
+    yemek = Yemek.query.get(id)
     db.session.delete(yemek)
     db.session.commit()
-    return redirect(url_for('index'))
+    return redirect('/')
+
 
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
     app.run(debug=True)

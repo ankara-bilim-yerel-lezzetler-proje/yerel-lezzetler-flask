@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2 class="mb-4">Yeni Yemek Ekle</h2>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+
+        <form method="POST">
+            <!-- Yemek Adı -->
+            <div class="mb-3">
+                <label class="form-label">Yemek Adı</label>
+                <input type="text" name="ad" class="form-control" placeholder="Örn: Beypazarı Güveci" required>
+            </div>
+
+            <!-- Açıklama -->
+            <div class="mb-3">
+                <label class="form-label">Yemek Açıklaması</label>
+                <textarea name="aciklama" class="form-control" rows="4"
+                          placeholder="Bu yemeğin içeriğini, nasıl yapıldığını ve yöresel önemini yazın..."
+                          required></textarea>
+            </div>
+
+            <!-- Fotoğraf URL -->
+            <div class="mb-3">
+                <label class="form-label">Fotoğraf URL</label>
+                <input type="text" name="foto" class="form-control" placeholder="https://...">
+                <div class="form-text">İnternetten aldığınız bir görsel linki olabilir.</div>
+            </div>
+
+            <!-- Butonlar -->
+            <button type="submit" class="btn btn-success">Kaydet</button>
+            <a href="/" class="btn btn-outline-secondary">İptal</a>
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}
