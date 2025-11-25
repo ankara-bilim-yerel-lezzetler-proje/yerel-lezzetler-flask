@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2 class="mb-4">Yöresel Yemekler</h2>
+
+<div class="row">
+
+    {% for yemek in yemekler %}
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm h-100">
+
+            <img src="{{ yemek.foto }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+
+            <div class="card-body">
+                <h5 class="card-title">{{ yemek.ad }}</h5>
+
+                <p class="card-text text-muted">
+                    {{ yemek.aciklama[0:100] }}...
+                </p>
+
+                <a href="/yemek/{{ yemek.id }}" class="btn btn-primary btn-sm">Detay</a>
+                <a href="/duzenle/{{ yemek.id }}" class="btn btn-warning btn-sm">Düzenle</a>
+                <a href="/sil/{{ yemek.id }}" class="btn btn-danger btn-sm"
+                   onclick="return confirm('Bu yemeği silmek istiyor musun?');">
+                   Sil
+                </a>
+            </div>
+
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+
+{% endblock %}
