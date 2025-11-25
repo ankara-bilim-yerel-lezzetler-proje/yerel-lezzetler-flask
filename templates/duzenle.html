@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2 class="mb-4">Yemeği Düzenle</h2>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label">Yemek Adı</label>
+                <input type="text" name="ad" class="form-control" value="{{ yemek.ad }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Açıklama</label>
+                <textarea name="aciklama" class="form-control" rows="4" required>{{ yemek.aciklama }}</textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Fotoğraf URL</label>
+                <input type="text" name="foto" class="form-control" value="{{ yemek.foto }}">
+            </div>
+
+            <button type="submit" class="btn btn-primary">Kaydet</button>
+            <a href="/" class="btn btn-outline-secondary">İptal</a>
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}
