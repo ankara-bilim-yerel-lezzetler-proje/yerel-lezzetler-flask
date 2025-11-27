@@ -3,6 +3,9 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
 app = Flask(__name__)
+app.secret_key = "abu-ybs-sifre"
+ADMIN_USERNAME = "admin"
+ADMIN_PASSWORD = "Ankarayerel-"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///yemekler.db'
 db = SQLAlchemy(app)
 
@@ -29,6 +32,25 @@ class Yorum(db.Model):
 def index():
     yemekler = Yemek.query.all()
     return render_template('index.html', yemekler=yemekler)
+
+# ---  GİRİŞ SAYFASI --- 
+@app.route('/giris', methods=['GET', 'POST'])
+def giris():
+    hata = None
+    if request.method == 'POST':
+        kullanici = request.form['kullanici']
+        sifre = request.form['sifre']
+        if kullanici == ADMIN_USERNAME and sifre == ADMIN_PASSWORD:
+            session['logged_in'] = True
+            return redirect(url_for('ekle'))  # girişten sonra ekle sayfasına yönlendir
+        else:
+            hata = "Kullanıcı adı veya şifre hatalı."
+    return render_template('giris.html', hata=hata)
+
+@app.route('/cikis')
+def cikis():
+    session.clear()
+    return redirect(url_for('index'))
 
 
 # --- DETAY SAYFASI ---

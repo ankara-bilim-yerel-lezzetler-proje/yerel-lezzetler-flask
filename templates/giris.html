@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="row justify-content-center">
+  <div class="col-md-4">
+    <h3 class="mb-3">Yönetici Girişi</h3>
+
+    {% if hata %}
+      <div class="alert alert-danger">{{ hata }}</div>
+    {% endif %}
+
+    <form method="POST">
+      <div class="mb-3">
+        <label class="form-label">Kullanıcı Adı</label>
+        <input type="text" name="kullanici" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Şifre</label>
+        <input type="password" name="sifre" class="form-control" required>
+      </div>
+      <button class="btn btn-primary w-100">Giriş Yap</button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
