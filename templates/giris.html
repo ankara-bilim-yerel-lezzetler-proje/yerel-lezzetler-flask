@@ -1,26 +1,35 @@
 {% extends 'base.html' %}
+
 {% block content %}
-
-<div class="row justify-content-center">
-  <div class="col-md-4">
-    <h3 class="mb-3">Yönetici Girişi</h3>
-
-    {% if hata %}
-      <div class="alert alert-danger">{{ hata }}</div>
-    {% endif %}
-
-    <form method="POST">
-      <div class="mb-3">
-        <label class="form-label">Kullanıcı Adı</label>
-        <input type="text" name="kullanici" class="form-control" required>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Şifre</label>
-        <input type="password" name="sifre" class="form-control" required>
-      </div>
-      <button class="btn btn-primary w-100">Giriş Yap</button>
-    </form>
-  </div>
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5">
+        <div class="card shadow-lg">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">Yönetici Girişi</h4>
+            </div>
+            <div class="card-body">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                <form method="POST" action="{{ url_for('login') }}">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Kullanıcı Adı</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Şifre</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Giriş Yap</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
-
 {% endblock %}

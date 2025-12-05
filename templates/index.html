@@ -9,7 +9,13 @@
     <div class="col-md-4 mb-4">
         <div class="card shadow-sm h-100">
 
-            <img src="{{ yemek.foto }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+            {% if yemek.foto %}
+                <img src="{{ yemek.foto }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+            {% else %}
+                <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                    <p class="text-muted">Fotoğraf Yok</p>
+                </div>
+            {% endif %}
 
             <div class="card-body">
                 <h5 class="card-title">{{ yemek.ad }}</h5>
@@ -18,17 +24,26 @@
                     {{ yemek.aciklama[0:100] }}...
                 </p>
 
-                <a href="/yemek/{{ yemek.id }}" class="btn btn-primary btn-sm">Detay</a>
-                <a href="/duzenle/{{ yemek.id }}" class="btn btn-warning btn-sm">Düzenle</a>
-                <a href="/sil/{{ yemek.id }}" class="btn btn-danger btn-sm"
-                   onclick="return confirm('Bu yemeği silmek istiyor musun?');">
-                   Sil
-                </a>
+                <a href="{{ url_for('yemek_detay', id=yemek.id) }}" class="btn btn-primary btn-sm">Detay</a>
+
+                {% if session.logged_in %} 
+                    <a href="{{ url_for('duzenle', id=yemek.id) }}" class="btn btn-warning btn-sm">Düzenle</a>
+                    <a href="{{ url_for('sil', id=yemek.id) }}" class="btn btn-danger btn-sm"
+                        onclick="return confirm('Bu yemeği silmek istiyor musun?');">
+                        Sil
+                    </a>
+                {% endif %}
             </div>
 
         </div>
     </div>
     {% endfor %}
+
+    {% if not yemekler %}
+        <div class="alert alert-info text-center">
+            Henüz sisteme bir yemek eklenmemiş. Lütfen yönetici girişi yapın.
+        </div>
+    {% endif %}
 
 </div>
 
