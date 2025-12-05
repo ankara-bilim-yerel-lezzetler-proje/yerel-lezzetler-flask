@@ -1,9 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash # session ve flash eklendi
+from flask import Flask, render_template, request, redirect, url_for, session, flash 
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
 app = Flask(__name__)
-# DİKKAT: Şifreler kaynak kodda tutulmamalıdır, ancak bu proje için devam ediyoruz.
+# DİKKAT: Şifreler kaynak kodda tutulmamalıdır.
 app.secret_key = "abu-ybs-sifre" 
 ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD = "Ankarayerel-"
@@ -18,7 +18,6 @@ class Yemek(db.Model):
     ad = db.Column(db.String(200), nullable=False)
     aciklama = db.Column(db.Text, nullable=False)
     foto = db.Column(db.String(500))
-    # Yorumlar silindiğinde bağlı olduğu yorumları da siler (cascade)
     yorumlar = db.relationship("Yorum", backref="yemek", cascade="all, delete") 
 
 
@@ -33,16 +32,17 @@ class Yorum(db.Model):
 @app.route('/')
 def index():
     yemekler = Yemek.query.all()
-    # index.html'e session bilgisi gönderildi
-    return render_template('index.html', yemekler=yemekler, logged_in=session.get('logged_in')) 
+    return render_template('index.html', yemekler=yemekler) 
 
 # --- GİRİŞ SAYFASI --- 
 @app.route('/giris', methods=['GET', 'POST'])
 def giris():
     hata = None
     if request.method == 'POST':
-        kullanici = request.form['kullanici']
-        sifre = request.form['sifre']
+        # DÜZELTME: HTML formundaki 'username' ve 'password' isimlerini kullanıyoruz.
+        kullanici = request.form['username'] 
+        sifre = request.form['password']
+        
         if kullanici == ADMIN_USERNAME and sifre == ADMIN_PASSWORD:
             session['logged_in'] = True
             flash('Başarıyla giriş yapıldı.', 'success')
@@ -62,8 +62,8 @@ def cikis():
 # --- DETAY SAYFASI ---
 @app.route('/yemek/<int:id>')
 def yemek_detay(id):
-    yemek = Yemek.query.get_or_404(id) # Yemek bulunamazsa 404 döndür
-    return render_template('detay.html', yemek=yemek, logged_in=session.get('logged_in'))
+    yemek = Yemek.query.get_or_404(id) 
+    return render_template('detay.html', yemek=yemek)
 
 
 # --- YORUM EKLE ---
@@ -71,20 +71,21 @@ def yemek_detay(id):
 def yorum_ekle(id):
     if not request.form['yorum']:
         flash('Yorum alanı boş bırakılamaz.', 'danger')
-        return redirect(f'/yemek/{id}')
+        # Bu kısımda url_for kullanmak daha temiz olur
+        return redirect(url_for('yemek_detay', id=id)) 
 
     yorum_metni = request.form['yorum']
     yorum = Yorum(yemek_id=id, yorum=yorum_metni)
     db.session.add(yorum)
     db.session.commit()
     flash('Yorumunuz başarıyla eklendi.', 'success')
-    return redirect(f'/yemek/{id}')
+    return redirect(url_for('yemek_detay', id=id))
 
 
 # --- CREATE (Yemek Ekle) ---
 @app.route('/ekle', methods=['GET', 'POST'])
 def ekle():
-    if not session.get('logged_in'): # <<< GÜVENLİK KONTROLÜ EKLENDİ
+    if not session.get('logged_in'): 
         flash('Bu sayfaya erişmek için yönetici girişi yapmalısınız.', 'warning')
         return redirect(url_for('giris'))
         
@@ -101,14 +102,14 @@ def ekle():
         db.session.add(yeni)
         db.session.commit()
         flash(f"'{yeni.ad}' başarıyla eklendi.", 'success')
-        return redirect('/')
-    return render_template('ekle.html', logged_in=True)
+        return redirect(url_for('index'))
+    return render_template('ekle.html')
 
 
 # --- UPDATE (Yemek Düzenle) ---
 @app.route('/duzenle/<int:id>', methods=['GET', 'POST'])
 def duzenle(id):
-    if not session.get('logged_in'): # <<< GÜVENLİK KONTROLÜ EKLENDİ
+    if not session.get('logged_in'): 
         flash('Bu sayfaya erişmek için yönetici girişi yapmalısınız.', 'warning')
         return redirect(url_for('giris'))
         
@@ -119,14 +120,14 @@ def duzenle(id):
         yemek.foto = request.form['foto']
         db.session.commit()
         flash(f"'{yemek.ad}' başarıyla güncellendi.", 'success')
-        return redirect('/')
-    return render_template('duzenle.html', yemek=yemek, logged_in=True)
+        return redirect(url_for('index'))
+    return render_template('duzenle.html', yemek=yemek)
 
 
 # --- DELETE (Yemek Sil) ---
 @app.route('/sil/<int:id>')
 def sil(id):
-    if not session.get('logged_in'): # <<< GÜVENLİK KONTROLÜ EKLENDİ
+    if not session.get('logged_in'): 
         flash('Bu işlemi yapmak için yönetici girişi yapmalısınız.', 'warning')
         return redirect(url_for('giris'))
         
@@ -134,7 +135,7 @@ def sil(id):
     db.session.delete(yemek)
     db.session.commit()
     flash(f"'{yemek.ad}' başarıyla silindi.", 'success')
-    return redirect('/')
+    return redirect(url_for('index'))
 
 
 if __name__ == '__main__':
