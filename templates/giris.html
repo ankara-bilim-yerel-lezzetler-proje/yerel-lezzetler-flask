@@ -8,22 +8,23 @@
                 <h4 class="mb-0">Yönetici Girişi</h4>
             </div>
             <div class="card-body">
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                        <div class="alert alert-danger" role="alert">
-                            {{ message }}
-                        </div>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
+                
+                {% if hata %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ hata }}
+                    </div>
+                {% endif %}
+
+                <!-- DİKKAT: Action doğru rotayı (giris) kullanıyor -->
                 <form method="POST" action="{{ url_for('giris') }}">
                     <div class="mb-3">
                         <label for="username" class="form-label">Kullanıcı Adı</label>
+                        <!-- DİKKAT: name="username" olarak değiştirildi -->
                         <input type="text" class="form-control" id="username" name="username" required>
                     </div>
                     <div class="mb-3">
                         <label for="password" class="form-label">Şifre</label>
+                        <!-- DİKKAT: name="password" olarak değiştirildi -->
                         <input type="password" class="form-control" id="password" name="password" required>
                     </div>
                     <button type="submit" class="btn btn-success w-100">Giriş Yap</button>

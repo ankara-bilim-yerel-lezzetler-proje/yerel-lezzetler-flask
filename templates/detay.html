@@ -30,7 +30,8 @@
         <hr>
 
         <h5>Yorumlar ({{ yemek.yorumlar | length }})</h5>
-        {% for yorum in yemek.yorumlar|reverse %} <div class="alert alert-secondary py-2">
+        {% for yorum in yemek.yorumlar|reverse %}
+            <div class="alert alert-secondary py-2">
                 {{ yorum.yorum }}
                 <br>
                 <small class="text-muted">{{ yorum.tarih.strftime('%d.%m.%Y %H:%M') }}</small>

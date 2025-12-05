@@ -1,9 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash 
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+import os
 
 app = Flask(__name__)
 # DİKKAT: Şifreler kaynak kodda tutulmamalıdır.
+basedir = os.path.abspath(os.path.dirname(__file__))
 app.secret_key = "abu-ybs-sifre" 
 ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD = "Ankarayerel-"
