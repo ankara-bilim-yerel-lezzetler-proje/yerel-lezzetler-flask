@@ -48,7 +48,7 @@ def giris():
         if kullanici == ADMIN_USERNAME and sifre == ADMIN_PASSWORD:
             session['logged_in'] = True
             flash('Başarıyla giriş yapıldı.', 'success')
-            return redirect(url_for('ekle'))  
+            return redirect(url_for('index'))  
         else:
             hata = "Kullanıcı adı veya şifre hatalı."
             flash(hata, 'danger')
